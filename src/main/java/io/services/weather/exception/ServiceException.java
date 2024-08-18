@@ -1,16 +1,16 @@
 package io.services.weather.exception;
 
-public class ValidationException extends RuntimeException {
+public class ServiceException extends RuntimeException {
 
-    private final String validationErrors;
+    private final String errorMessage;
 
-    public ValidationException(String validationErrors) {
-        super(validationErrors);
-        this.validationErrors = validationErrors;
+    public ServiceException(String errorMessage) {
+        super(errorMessage);
+        this.errorMessage = errorMessage;
     }
 
     @Override
     public String getMessage() {
-        return validationErrors;
+        return errorMessage;
     }
 }

@@ -2,18 +2,16 @@ package io.services.weather.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.repository.NoRepositoryBean;
 
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class KeySpecs {
+public class ApiKeyDetails {
     private int requestCount;
     private LocalDateTime firstRequestTime;
 
-    public KeySpecs() {
+    public ApiKeyDetails() {
         this.requestCount = 1;
         this.firstRequestTime = LocalDateTime.now();
     }
@@ -27,5 +25,5 @@ public class KeySpecs {
         this.requestCount = 1;
         this.firstRequestTime = LocalDateTime.now();
     }
-    
+
 }

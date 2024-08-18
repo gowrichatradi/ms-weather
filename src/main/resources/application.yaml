@@ -1,1 +1,57 @@
-spring.application.name=ms-weather
+spring:
+  application:
+    name: ms-weather
+
+
+  r2dbc:
+    url: r2dbc:h2:mem:///weatherdb2
+  data:
+    r2dbc:
+      repositories:
+        enabled: true
+
+
+service:
+  weather:
+    api-key: ded9ede38fe258db53cec5cf942c2514
+    hostname: api.openweathermap.org
+    path: /data/2.5/weather
+    api-rate-limit:
+      requests: 5
+      time: 3600 #in seconds
+
+
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+    ratelimiters:
+      enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      GetWeatherApiCircuitBreaker:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 4
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state:
+          seconds: 2
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: count_based
+  retry:
+    instances:
+      GetWeatherApiRetry:
+        max-attempts: 3
+        wait-duration:
+          seconds: 1
+        retry-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientRequestException
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+        ignore-exceptions:
+          - io.services.weather.exception.ClientException

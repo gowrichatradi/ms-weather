@@ -25,9 +25,9 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = Application.class)
 @EnableWireMock(
-        @ConfigureWireMock(name = "random-service")
+        @ConfigureWireMock(name = "weather-service")
 )
-public class SomeRandomTest {
+public class WeatherServiceTest {
 
     @MockBean
     private WeatherDataRepository repository;
@@ -36,12 +36,12 @@ public class SomeRandomTest {
     private WeatherService weatherService;
 
 
-    @InjectWireMock("random-service")
+    @InjectWireMock("weather-service")
     private WireMockServer wiremock;
 
 
     @Test
-    void name() {
+    void shouldCallApiWhenDataNotPresentInDatabase() {
         String city = "New York";
         String country = "US";
 
@@ -56,22 +56,20 @@ public class SomeRandomTest {
 
 
         wiremock.stubFor(get(urlPathEqualTo("/data/2.5/weather"))
-                .withQueryParam("q", equalTo(city + "," + country))
-                .withQueryParam("appid", equalTo("your-api-key"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody("{\"name\":\"New York\",\"sys\":{\"country\":\"US\"},\"weather\":[{\"description\":\"Cloudy\"}]}")));
 
-        // When
         WeatherRequest request = new WeatherRequest(city, country);
         Mono<WeatherResponse> weatherResponseMono = weatherService.fetchWeather(request);
 
-        // Then
         StepVerifier.create(weatherResponseMono)
                 .expectNextMatches(response -> response.getCity().equals("New York") && response.getCountry().equals("US"))
                 .verifyComplete();
 
+        Mockito.verify(repository, times(1)).findWeatherDataByCityAndCountry(any(), any());
+        Mockito.verify(repository, times(1)).save(any());
 
     }
 }

@@ -1,31 +1,36 @@
-package io.services.msweather.controller;
+package io.services.weather.controller;
 
-import io.services.msweather.domain.WeatherRequest;
-import io.services.msweather.domain.WeatherResponse;
+import io.services.weather.domain.WeatherRequest;
+import io.services.weather.domain.WeatherResponse;
+import io.services.weather.entity.WeatherData;
+import io.services.weather.service.WeatherService;
+import io.services.weather.validator.ApiKeyValidator;
+import io.services.weather.validator.WeatherRequestValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 
 @RestController
 @RequestMapping("/api")
 @Slf4j
 @RequiredArgsConstructor
 public class WeatherController {
+    public static final String API_KEY = "Api-Key";
 
+    private final WeatherService weatherService;
+    private final ApiKeyValidator apiKeyValidator;
+    private final WeatherRequestValidator weatherRequestValidator;
 
     @PostMapping("/weather")
-    public Mono<WeatherResponse> weather(@RequestBody WeatherRequest weatherRequest) {
-        log.info("checking weather for the city={}, and country={}", weatherRequest.getCity(), weatherRequest.getCountry());
-        return Mono.just(WeatherResponse.builder()
-                .city(weatherRequest.getCity())
-                .country(weatherRequest.getCountry())
-                .weatherReport("Clear skies \uD83D\uDE0D")
-                .build());
-    }
+    public Mono<WeatherResponse> weather(@RequestHeader(API_KEY) String apiKey, @RequestBody WeatherRequest weatherRequest) {
+        apiKeyValidator.validate(apiKey);
+        weatherRequestValidator.validate(weatherRequest);
 
+        log.info("checking weather for the city={}, and country={}", weatherRequest.getCity(), weatherRequest.getCountry());
+        return weatherService.fetchWeather(weatherRequest);
+    }
 
 }

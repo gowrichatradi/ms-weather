@@ -1,4 +1,4 @@
-package io.services.msweather;
+package io.services.weather;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -25,7 +25,7 @@ servers:
   - url: "https://api.openweathermap.org/data/2.5/"
 
 security:
-  - app_id: []
+  - app_id: [ ]
 
 # Path Defination for API
 
@@ -46,20 +46,41 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/200'
+                $ref: '#/components/schemas/GetWeatherResponse'
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetWeatherError'
+        401:
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetWeatherError'
         404:
           description: Not found response
           content:
-            text/plain:
+            application/json:
               schema:
-                title: Weather not found
-                type: string
-                example: Not found
-
+                $ref: '#/components/schemas/GetWeatherError'
+        429:
+          description: too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetWeatherError'
+        500:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetWeatherError'
 
 # Component Description
 components:
-
   parameters:
     q:
       name: q
@@ -69,7 +90,7 @@ components:
         type: string
 
   schemas:
-    200:
+    GetWeatherResponse:
       title: Successful response
       type: object
       properties:
@@ -120,6 +141,23 @@ components:
           description: Internal parameter
           format: int32
           example: 200
+    GetWeatherError:
+      title: Failure response
+      type: object
+      properties:
+        cod:
+          type: string
+          description: error code
+        message:
+          type: string
+          description: error message
+        parameters:
+          type: array
+          items:
+            type: string
+
+
+
 
     # SubObject Definations
     Coord:

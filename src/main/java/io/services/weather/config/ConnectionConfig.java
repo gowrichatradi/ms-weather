@@ -1,4 +1,4 @@
-package io.services.msweather.config;
+package io.services.weather.config;
 
 
 import io.r2dbc.spi.ConnectionFactory;
